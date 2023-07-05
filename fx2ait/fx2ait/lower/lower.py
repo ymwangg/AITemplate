@@ -220,6 +220,9 @@ class AitLowerer:
                 logger.info(
                     f"Lowering submodule {submod_name} elapsed time {datetime.datetime.now() - lowering_start_time}"
                 )
+            else:
+                lowered_module = torch.compile(submod)
+                setattr(split_result.split_module, submod_name, lowered_module)
 
         return split_result.split_module
 
@@ -234,6 +237,14 @@ class AitLowerer:
             module, inputs, leaf_module_list=self.lower_settings.leaf_module_list
         )
         split_result = default_split_function(module, inputs, self.lower_settings)
+        for name,mod in split_result.split_module._modules.items():
+          for node in mod.graph.nodes:
+              print(node)
+              if isinstance(node, torch.fx.node.Node) and 'tensor_meta' in node.meta:
+                  print(node.name, node.meta['tensor_meta'].dtype,
+                      node.meta['tensor_meta'].shape)
+
+
         lower_result = self.lower_func(split_result, additional_inputs)
 
         return lower_result

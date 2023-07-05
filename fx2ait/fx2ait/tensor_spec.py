@@ -252,10 +252,11 @@ class TensorSpec:
         for index, t in enumerate(inputs):
             shape: List[IntVar] = []
             for i, d in enumerate(t.shape):
-                if i == bs_dim[index]:
-                    shape.append(IntVar([1, max_batch_size], "batch_size"))
-                else:
-                    shape.append(IntImm(d))
+                # if i == bs_dim[index]:
+                #     shape.append(IntVar([1, max_batch_size], "batch_size"))
+                # else:
+                # TODO: fix batch dim inference
+                shape.append(IntImm(d))
             result.append(TensorSpec(shape, t.dtype))
 
         return result
