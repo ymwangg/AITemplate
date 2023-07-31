@@ -9,6 +9,7 @@ torch._logging.set_logs(dynamo=logging.INFO,inductor=logging.INFO)
 import sys
 
 batch = int(sys.argv[1])
+
 def ait_backend(gm, example_inputs):
     lower = AitLowerer.create(
         LowerSettings(workdir="/tmp", name="test_ait_lower", min_acc_module_size=0)
@@ -34,17 +35,18 @@ ait_model = torch.compile(ait_model, backend=ait_backend)
 ref_model = torch.compile(model, backend="inductor")
 
 def profile(model):
+    N = 2000
     for _ in range(10):
         res = model(**ins)
 
     t0 = time.time()
-    for _ in range(1000):
+    for _ in range(N):
         res = model(**ins)
     t1 = time.time()
-    return t1-t0
+    return (t1-t0)/N*1000
 
-#print("ait_model=",profile(ait_model))
-print("inductor_model=",profile(ref_model))
+print("ait_model=",profile(ait_model))
 print("native_model=",profile(model))
+print("inductor_model=",profile(ref_model))
 #torch.testing.assert_close(res, ref_res, rtol=1e-2, atol=1e-2)
 #print(torch.max(res.logits), torch.max(ref_res.logits))

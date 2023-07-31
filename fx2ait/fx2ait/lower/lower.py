@@ -237,12 +237,12 @@ class AitLowerer:
             module, inputs, leaf_module_list=self.lower_settings.leaf_module_list
         )
         split_result = default_split_function(module, inputs, self.lower_settings)
-        for name,mod in split_result.split_module._modules.items():
-          for node in mod.graph.nodes:
-              print(node)
-              if isinstance(node, torch.fx.node.Node) and 'tensor_meta' in node.meta:
-                  print(node.name, node.meta['tensor_meta'].dtype,
-                      node.meta['tensor_meta'].shape)
+        # for name,mod in split_result.split_module._modules.items():
+        #   for node in mod.graph.nodes:
+        #       print(node)
+        #       if isinstance(node, torch.fx.node.Node) and 'tensor_meta' in node.meta:
+        #           print(node.name, node.meta['tensor_meta'].dtype,
+        #               node.meta['tensor_meta'].shape)
 
 
         lower_result = self.lower_func(split_result, additional_inputs)
